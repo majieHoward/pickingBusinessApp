@@ -371,7 +371,24 @@ $("#gridTable").html("");
 				$("#orderId").text(aa.interactiveData.orderItemInfo.orderItemId);
 				sessionStorage.setItem("updateOrderId",aa.interactiveData.orderItemInfo.orderItemId);
 				$("#goodsBelonesName").text(aa.interactiveData.orderItemInfo.customerName);
-				$("#goodsId").text(aa.interactiveData.orderItemInfo.customerId);			
+				$("#goodsId").text(aa.interactiveData.orderItemInfo.customerId);	
+				
+				var state = aa.interactiveData.orderItemInfo.orderItemState;
+				if(state=="incomplete"){
+					 var el;
+					 el=$.tips({
+							content:'您有一条未完成的订单！',
+							stayTime:2000,
+							type:"success"
+						})
+				}else{
+					 var el;
+					 el=$.tips({
+							content:'您有一条新的订单！',
+							stayTime:2000,
+							type:"success"
+						})
+				}
 			}
 			
 		},
