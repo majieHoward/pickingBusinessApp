@@ -20,7 +20,7 @@
 			<section class="ui-notice section-st">
 				<li class="">             
                     <div class="ui-avatar-one">
-					<span style="background-image:url(head.jpg)">
+					<span style="background-image:url(image/head.jpg)">
 					</span>
 					</div>
                 </li>
@@ -52,8 +52,8 @@
 				<p class="demo-desc"></p>
 				<div class="demo-block">
 					<ul class="ui-row ui-whitespace">
-						<li class="ui-col ui-col-50 orderGreen"><div>拣货员：</div><i id="usernameInfo">234234</i></li>
-						<li class="ui-col ui-col-50 orderGreen"><div>本日已捡单：</div><i >111</i></li>
+						<li class="ui-col ui-col-50 orderGreen"><div>拣货员：</div><i id="usernameInfo"></i></li>
+						<li class="ui-col ui-col-50 orderGreen"><div>本日已捡单：</div><i id="alreadyOrderCount"></i></li>
 					</ul>
 				</div>
 				<p class="demo-desc"></p>
@@ -132,10 +132,11 @@
 		<!-- /.ui-container-->
     </body>
 	<script>
+	var pubicAdd="192.168.1.18";
 	//完成的标志位
 	var completeTarget=0;
 	//数据查到的所有的任务条数
-	var mission_count_info;
+	var mission_count_info=1;
 	//点击下一条就+1
 	var mission_count_num=0;
 	var usernameInfo = sessionStorage.getItem("username");
@@ -177,6 +178,7 @@ $('.ui-header .ui-btn').click(function(){
 $('#ExitButton').click(function(){
 	$("#finishOrder").dialog("hide");
 	commitTheOrder(callbackExit);
+	sessionStorage.clear();
 /*	if(result=="success"){
 		location.href = "login.html";
 	}else{
@@ -302,6 +304,7 @@ function buildGridInfo(id){
 $("#gridTable").html("");
 	//把点击计数位清零
 	mission_count_num=0;
+	mission_count_info=1
 	var orgSelectItems;
  	var _orgSelectionContentHtml="";
  	var goods;
@@ -311,66 +314,70 @@ $("#gridTable").html("");
 	paramData.userId =id;
 	var json;
 //	json = sendAjaxRequest("http://127.0.0.1:9999/order/scanUnprocessedOrder.howard?");
-	
+	alreadyOrderCount();
 	$.ajax({
 	  type: 'POST',
 	  data:paramData,
-	  url: "http://127.0.0.1:9999/order/scanUnprocessedOrder.howard",
+	  url: "http://"+pubicAdd+":9999/order/scanUnprocessedOrder.howard",
 	 success: function(data){
-			var aa =JSON.parse(data); 
+			var aa = data;
 			console.log(aa);
-			var orgselect = aa.interactiveData.goodsItems;	 
-			orgSelectItems=orgselect;
-			var goodsName;
-			var goodsCount;
-			var goodsShelfPosition;
-			//数据查到的所有的任务条数赋值
-			mission_count_info=orgSelectItems.length;
-			for(i=0;i<orgSelectItems.length;i++){
-				orgSelectItem=orgSelectItems[i];
-				goodsName=orgSelectItem.goodsName;
-				goodsCount=orgSelectItem.goodsCount;
-				goodsShelfPosition=orgSelectItem.goodsShelfPosition;
-				if(i == 0){
-					_orgSelectionContentHtml+='<tr class="lineYellow" id="line" firstLine="first">'
-					+'<td>'+goodsName+'</td>'
-						+'<td>'+goodsCount+'</td>'
-						+'<td>'+goodsShelfPosition+'</td>'
-						+'</tr>'
-				}
-				else if(i == (orgSelectItems.length-1)){
-					_orgSelectionContentHtml+='<tr lastLine="last" >'
+			if(aa.isSuccess=="error"){
+				 el=$.tips({
+					content:aa.interactiveMessage,
+					stayTime:4000,
+					type:"success"
+				})
+			}else{
+				var aa=eval("(" + data + ")");
+				var orgselect = aa.interactiveData.goodsItems;	 
+				orgSelectItems=orgselect;
+				var goodsName;
+				var goodsCount;
+				var goodsShelfPosition;
+				//数据查到的所有的任务条数赋值
+				mission_count_info=orgSelectItems.length;
+				for(i=0;i<orgSelectItems.length;i++){
+					orgSelectItem=orgSelectItems[i];
+					goodsName=orgSelectItem.goodsName;
+					goodsCount=orgSelectItem.goodsCount;
+					goodsShelfPosition=orgSelectItem.goodsShelfPosition;
+					if(i == 0){
+						_orgSelectionContentHtml+='<tr class="lineYellow" id="line" firstLine="first">'
 						+'<td>'+goodsName+'</td>'
-						+'<td>'+goodsCount+'</td>'
-						+'<td>'+goodsShelfPosition+'</td>'
-						+'</tr>'
-				}
-				else{
-					_orgSelectionContentHtml+='<tr>'
-				
-						+'<td>'+goodsName+'</td>'
-						+'<td>'+goodsCount+'</td>'
-						+'<td>'+goodsShelfPosition+'</td>'
-						+'</tr>'
+							+'<td>'+goodsCount+'</td>'
+							+'<td>'+goodsShelfPosition+'</td>'
+							+'</tr>'
 					}
+					else if(i == (orgSelectItems.length-1)){
+						_orgSelectionContentHtml+='<tr lastLine="last" >'
+							+'<td>'+goodsName+'</td>'
+							+'<td>'+goodsCount+'</td>'
+							+'<td>'+goodsShelfPosition+'</td>'
+							+'</tr>'
+					}
+					else{
+						_orgSelectionContentHtml+='<tr>'
+					
+							+'<td>'+goodsName+'</td>'
+							+'<td>'+goodsCount+'</td>'
+							+'<td>'+goodsShelfPosition+'</td>'
+							+'</tr>'
+						}
+				}
+				console.log(_orgSelectionContentHtml);
+				$("#gridTable").html(_orgSelectionContentHtml);
+				//加载货主姓名  货主id：
+				$("#orderId").text(aa.interactiveData.orderItemInfo.orderItemId);
+				sessionStorage.setItem("updateOrderId",aa.interactiveData.orderItemInfo.orderItemId);
+				$("#goodsBelonesName").text(aa.interactiveData.orderItemInfo.customerName);
+				$("#goodsId").text(aa.interactiveData.orderItemInfo.customerId);			
 			}
-			console.log(_orgSelectionContentHtml);
-			$("#gridTable").html(_orgSelectionContentHtml);
-			//加载货主姓名  货主id：
-			$("#orderId").text(aa.interactiveData.orderItemInfo.orderItemId);
-			sessionStorage.setItem("updateOrderId",aa.interactiveData.orderItemInfo.orderItemId);
-			$("#goodsBelonesName").text(aa.interactiveData.orderItemInfo.customerName);
-			$("#goodsId").text(aa.interactiveData.orderItemInfo.customerId);
 			
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown){
 		}
 	});
-	
-	//json="{\"interactiveData\":{\"orderItemInfo\":{\"orderGenerationTime\":\"\",\"orderItemId\":\"\",\"customerId\":\"\",\"customerName\":\"\"},\"goodsItems\":[{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"21\",\"goodsName\":\"ThinkPadNewS2（20GU0000CD）13.3\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"10\",\"goodsName\":\"联想（Lenovo）天逸5050商用台式电脑（I5-44604G1T2G独显WiFi蓝牙\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"16\",\"goodsName\":\"典籍18.5-23.6英寸一体机电脑英特尔酷睿I3/I5/I7办公游戏台式机电脑整机\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"14\",\"goodsName\":\"联想（Lenovo）H3060台式电脑（I3-61004G500GDVD无线网卡蓝牙\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"12\",\"goodsName\":\"雷诺塔酷睿i5/8G/GTX1050Ti4G台式游戏电脑主机/DIY组装机\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"23\",\"goodsName\":\"AppleMacmini台式电脑(Corei5处理器/8GB内存/1TB存储MGEN2CH/A)\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"56\",\"goodsName\":\"ThinkPadT450（20BVA02ACD）14英寸超薄笔记本电脑\"},{\"goodsShelfPosition\":\"DA-445\",\"goodsCount\":\"3\",\"orderId\":\"1\",\"goodsId\":\"2\",\"goodsName\":\"戴尔(DELL)成就Vostro3900-R7938\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"11\",\"goodsName\":\"戴尔（DELL）灵越Inspiron3464-R1528W\"},{\"goodsShelfPosition\":\"AD-09-1\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"8\",\"goodsName\":\"ThinkPadX260（20F6A09KCD）\"},{\"goodsShelfPosition\":\"UT-987\",\"goodsCount\":\"1\",\"orderId\":\"1\",\"goodsId\":\"3\",\"goodsName\":\"戴尔(DELL)XPS13-9360\"},{\"goodsShelfPosition\":\"YT-876\",\"goodsCount\":\"9\",\"orderId\":\"1\",\"goodsId\":\"4\",\"goodsName\":\"酷睿i5-6400\"},{\"goodsShelfPosition\":\"AF-298\",\"goodsCount\":\"4\",\"orderId\":\"1\",\"goodsId\":\"1\",\"goodsName\":\"联想(Lenovo)小新出色版510S\"}]},\"interactiveMessage\":\"\",\"isSuccess\":\"success\"}";
-    var aa =eval("(" + json + ")");
-	console.log(json);
-	
 }
 //发送ajax请求
 function sendAjaxRequest(url){
@@ -391,7 +398,7 @@ function sendAjaxRequest(url){
 function completeMIssion(){
 //	$("#gridTable").html("");
 console.log("查出来="+mission_count_info+"----点击了"+mission_count_num);
-	if(mission_count_info!=mission_count_num+1){
+	if(mission_count_info!=mission_count_num+1&&mission_count_info!=0){
 		$("#ExitButton").css("display","none");
 		$("#ordersButton").css("display","none");
 		$("#message").text("当前订单还未完成！");
@@ -444,9 +451,9 @@ function commitTheOrder(paramFunction){
 	$.ajax({
 	  type: 'POST',
 	  data:paramData,
-	  url: "http://127.0.0.1:9999/order/completedObtainOrder.howard",
+	  url: "http://"+pubicAdd+":9999/order/completedObtainOrder.howard",
 	 success: function(data){
-			var aa =JSON.parse(data); 
+			var aa =eval("(" + data + ")");
 			console.log(aa);
 //			if(aa.isSuccess=="error"){
 			result=aa.isSuccess;
@@ -464,8 +471,26 @@ function commitTheOrder(paramFunction){
 		error:function(XMLHttpRequest, textStatus, errorThrown){
 		}
 	});
-	
+}
+//获取本日已检单数
+function alreadyOrderCount(){
+var paramData = {};
+	paramData.userId =sessionStorage.getItem("userId");
+	$.ajax({
+	  type: 'POST',
+	  data:paramData,
+	  url: "http://"+pubicAdd+":9999/order/totalNumberOfOrders.howard?",
+	 success: function(data){
+			var aa =eval("(" + data + ")"); 
+			console.log(aa);
+//			if(aa.isSuccess=="error"){
+			var result=aa.interactiveData.totalNumberOfOrders;
+			$("#alreadyOrderCount").text(result);
 
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+		}
+	});
 }
 	</script>
 </html>
