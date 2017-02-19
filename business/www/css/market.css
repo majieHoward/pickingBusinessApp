@@ -1,0 +1,67 @@
+.orderBlue {
+    background-color: #18b4ed;
+    color: white;
+}
+.orderGreen{
+	background-color: #00c795;
+    color: white;
+}
+.lineBlack{
+	background-color: #777272;
+    color: white;
+}
+.black{
+    color: black;
+}
+.lineYellow{
+	background-color: yellow;
+}
+.ui-header .ui-icon-personal {
+    position: absolute;
+    right: 0;
+}
+.ui-footer1 {
+	position:absolute;
+	width:100%;
+	z-index:100;
+	bottom:0;
+	height:56px;
+}
+.black-fonts{
+    color:#000;
+	line-height:40px
+}
+.section-st{
+	height:20%;
+	position: relative;
+}
+.ui-table .td1{
+	width:15%;
+}
+.ui-table .td3{
+	width:20%;
+}
+.ui-table .td3{
+	width:65%;
+}
+.ui-dialog-bd>i:before {
+    font-family: iconfont!important;
+    font-size: 32px;
+    line-height: 44px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: .2px;
+    display: block;
+    color: rgba(0,0,0,.5);
+    content: "";
+    font-size: 100px;
+    line-height: 100px;
+    color: rgba(0,0,0,.3);
+}
+.ui-dialog-bd p {
+    font-size: 16px;
+    line-height: 40px;
+    color: #bbb;
+    text-align: center;
+    padding: 0 15px;
+}

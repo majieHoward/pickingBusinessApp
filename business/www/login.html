@@ -1,0 +1,174 @@
+﻿
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+        <title>登录</title>
+        <link rel="stylesheet" href="css/frozen.css">
+        <link rel="stylesheet" href="css/demo.css"> 
+		
+        <script src="js/zepto.min.js"></script>
+        <script src="js/frozen.js"></script>
+<style type="text/css">
+.orderBlue {
+    background-color: #18b4ed;
+    color: white;
+}
+.orderGreen{
+	background-color: #00c795;
+    color: white;
+}
+.lineBlack{
+	background-color: #777272;
+    color: white;
+}
+.black{
+    color: black;
+}
+.lineYellow{
+	background-color: yellow;
+}
+
+</style>
+    </head>
+    
+    <body ontouchstart style="background-image:url()">
+        <header class="ui-header ui-header-positive ui-border-b">
+            <i class="" onclick="history.back()"></i><h1>登录</h1>
+        </header>
+
+        <section class="ui-container" >
+	<!--		<section id="table" style="padding-top:13rem;">
+				
+				<div class="ui-form ui-border-t">
+					<form action="#">
+						<div class="ui-form-item">
+							<label>
+								账号：
+							</label>
+							<input type="text" >
+							<a href="#" class="ui-icon-close">
+							</a>
+						</div>
+						<div class="ui-form-item ui-border-tb">
+							<label>
+								密码：
+							</label>
+							<input type="password" >
+							<a href="#" class="ui-icon-close">
+							</a>
+						</div>
+					</form>
+					<div class="ui-btn-wrap">
+						<button class="ui-btn-lg ui-btn-primary">
+							确定
+						</button>
+					</div>
+				</div>
+			</section>  -->
+			<section class="ui-notice" style="padding-top:2rem;">
+				<li class="ui-border-t">             
+                    <div class="ui-avatar-one"><span style="background-image:url(image/head.jpg)"></span></div>
+                </li>
+                <form action="#" style="padding-top:2rem;">
+                    <div class="ui-form-item ui-border-b">
+                        <label>
+                            账号：
+                        </label>
+                        <input type="text" placeholder="输入账号" id="username">
+                        <a href="#" class="ui-icon-close" id="iii">
+                        </a>
+                    </div>
+                   <div class="ui-form-item ui-border-b">
+                        <label>
+                            密码：
+                        </label>
+                        <input type="password" placeholder="输入密码" id="password">
+                        <a href="#" class="ui-icon-close">
+                        </a>
+                    </div>             
+                </form>
+				<div class="ui-btn-wrap" style="width: 18rem;">
+					<button class="ui-btn-lg ui-btn-primary" id="queding">
+						确定
+					</button>
+				</div>
+				<div class="ui-dialog">
+					<div class="ui-dialog-cnt">
+						<div class="ui-dialog-bd">
+							<div>
+							<h4></h4>
+							<div>账号或密码错误！</div></div>
+						</div>
+						<div class="ui-dialog-ft ui-btn-group">
+							<button type="button" data-role="button"  class="select" id="dialogButton<%=i%>">关闭</button> 
+						</div>
+					</div>        
+				</div>
+            </section>
+        </section><!-- /.ui-container-->
+        <script>
+        $('.ui-list li,.ui-tiled li').click(function(){
+            if($(this).data('href')){
+                location.href= $(this).data('href');
+            }
+        });
+        $('.ui-header .ui-btn').click(function(){
+            location.href= 'index.html';
+        });
+		$('.ui-icon-close').click(function(){
+          var aa =  $(this).previousSbiling;
+		  alert($(this));
+        });
+		$('#queding').click(function(){
+			quedingButton();
+        });
+		
+function quedingButton(){
+	var paramData = {};
+	paramData.userName =$("#username").val();
+	paramData.userPassword=$("#password").val();
+	$.ajax({
+	  type: 'POST',
+	  data:paramData,
+	  url: "http://127.0.0.1:9999/system/login.howard",
+	 success: function(data){		
+			var aa =JSON.parse(data);	
+			console.log(aa);
+			if(aa.isSuccess=="error"){
+				var dia2=$(".ui-dialog").dialog("show");
+				$("#password").val("");
+			}else{
+				var name = aa.interactiveData.userNickName;
+				sessionStorage.setItem("username",name);
+				var userId = aa.interactiveData.userId;
+				sessionStorage.setItem("userId",userId);
+				location.href = "market.html";
+			}
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+		}
+	});
+}
+//发送ajax请求
+function sendAjaxRequest(url,paramData){
+	var result;
+	$.ajax({
+		type: "POST",
+		url:url,
+		data:paramData,
+		async:false,
+		dataType: "json",
+		success: function(data){
+			result = data.output;
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+		}
+	});
+	return result;
+}
+        </script>
+    </body>
+</html>
